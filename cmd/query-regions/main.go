@@ -34,6 +34,7 @@ func (rq *RegQuery) queryRegions(inst string) (err error) {
 	debug := false
 	if os.Getenv("DEBUG") != "" {
 		debug = true
+		fmt.Println(`v0.0.0`)
 	}
 	regs := sets.Empty()
 	svc := ec2.New(rq.sess)
