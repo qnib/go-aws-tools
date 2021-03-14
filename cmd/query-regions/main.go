@@ -89,6 +89,9 @@ func (rq RegQuery) RandomPick() {
 func main() {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
+		Config: aws.Config{
+			Region: aws.String(os.Getenv("AWS_REGION")),
+		},
 	}))
 	if os.Getenv("AWS_ACCESS_KEY_ID") != "" {
 		var err error
