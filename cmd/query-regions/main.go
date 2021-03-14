@@ -7,10 +7,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 
 	"fmt"
-	"github.com/ashwanthkumar/golang-utils/sets"
 	"log"
 	"math/rand"
 	"os"
+
+	"github.com/ashwanthkumar/golang-utils/sets"
 )
 
 // RegQuery holds the regions.
@@ -34,7 +35,6 @@ func (rq *RegQuery) queryRegions(inst string) (err error) {
 	debug := false
 	if os.Getenv("DEBUG") != "" {
 		debug = true
-		fmt.Println(`v0.0.0`)
 	}
 	regs := sets.Empty()
 	svc := ec2.New(rq.sess)
@@ -87,12 +87,18 @@ func (rq RegQuery) RandomPick() {
 }
 
 func main() {
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(os.Getenv("AWS_REGION")),
-		Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), ""),
-	})
-	if err != nil {
-		panic(err)
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
+	if os.Getenv("AWS_ACCESS_KEY_ID") != "" {
+		var err error
+		sess, err = session.NewSession(&aws.Config{
+			Region:      aws.String(os.Getenv("AWS_REGION")),
+			Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), ""),
+		})
+		if err != nil {
+			panic(err)
+		}
 	}
 	rq := NewRegQuery(sess)
 	// Create EC2 service client
@@ -101,4 +107,3 @@ func main() {
 	}
 	rq.RandomPick()
 }
-
