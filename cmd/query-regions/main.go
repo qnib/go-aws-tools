@@ -87,21 +87,15 @@ func (rq RegQuery) RandomPick() {
 }
 
 func main() {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-		Config: aws.Config{
-			Region: aws.String(os.Getenv("AWS_REGION")),
-		},
-	}))
+	awscfg := &aws.Config{
+		Region: aws.String(os.Getenv("AWS_REGION")),
+	}
 	if os.Getenv("AWS_ACCESS_KEY_ID") != "" {
-		var err error
-		sess, err = session.NewSession(&aws.Config{
-			Region:      aws.String(os.Getenv("AWS_REGION")),
-			Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), ""),
-		})
-		if err != nil {
-			panic(err)
-		}
+		awscfg.Credentials = credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), "")
+	}
+	sess, err := session.NewSession(awscfg)
+	if err != nil {
+		panic(err)
 	}
 	rq := NewRegQuery(sess)
 	// Create EC2 service client
